@@ -2003,12 +2003,16 @@
             (if (some? final-clause)
               (r.ir/compile (compile [expr] [final-clause]) nil :match &env)
               `(throw (ex-info "non exhaustive pattern match" '~(meta &form))))
-            `(let [~target ~expr
-                   ~fail (fn []
-                           ~(if (some? final-clause)
-                              (r.ir/compile (compile [target] [final-clause]) nil :match &env)
-                              `(throw (ex-info "non exhaustive pattern match" '~(meta &form)))))]
-               ~(r.ir/compile (compile [target] matrix) `(~fail) :match &env))))))))
+            (let [fail `(fn []
+                          ~(if (some? final-clause)
+                             (r.ir/compile (compile [target] [final-clause]) nil :match &env)
+                             `(throw (ex-info "non exhaustive pattern match" '~(meta &form)))))]
+
+              (r.ir/compile (r.ir/op-bind target (r.ir/op-eval expr)
+                              (compile [target] matrix))
+                            `(~ fail)
+                            :match
+                            &env))))))))
 
 
 (defn analyze-search-args
