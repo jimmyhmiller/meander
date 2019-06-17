@@ -734,7 +734,6 @@ compilation decisions."
       type)
     not-found))
 
-
 (defn eliminate-check-known-type [env node known-type]
   (let [type (lookup env (get-in node [:target :form]))]
     (cond
@@ -742,6 +741,22 @@ compilation decisions."
       (found? type) (op-fail)
       :else node)))
 
+(def preds {#'clojure.core/number? java.lang.Number
+            #'clojure.core/seq? clojure.lang.ISeq
+            #'clojure.core/coll? clojure.lang.IPersistentCollection
+            #'clojure.core/string? java.lang.String})
+
+(defn eliminate-preds [env node]
+  (if (and (= (op (:test node)) :eval)
+           (seq? (:form (:test node))))
+    (let [type (lookup env (second (get-in node [:test :form])))
+          pred-value (first (:form (:test node)))
+          pred-type (and (symbol? pred-value) (preds (resolve pred-value)))]
+      (cond
+        (isa? type pred-type) (:then node)
+        (and (found? type) pred-type) (op-fail)
+        :else node))
+    node))
 
 (defn eliminate-check-op [env node]
   (case (op node)
@@ -753,19 +768,9 @@ compilation decisions."
     (eliminate-check-known-type env node clojure.lang.IPersistentVector)
     :check-map
     (eliminate-check-known-type env node clojure.lang.IPersistentMap)
-
     :check-boolean
-    (do
-      (if (and (= (op (:test node)) :eval)
-               (seq? (:form (:test node)))
-               (= (first (:form (:test node))) 'clojure.core/coll?))
-        (let [type (lookup env (second (get-in node [:test :form])))]
-          (if (isa? type clojure.lang.IPersistentCollection)
-            (:then node)
-            node))
-        node))
+    (eliminate-preds env node)
     node))
-
 
 (defn add-type-if-coerced-bind [env node coercing-function resulting-type]
   (let [value (:value node)]
@@ -773,7 +778,6 @@ compilation decisions."
                (seq? (:form value))
                (= (first (:form value)) coercing-function))
       (swap! env assoc (:symbol node) resulting-type))))
-
 
 (defn add-type-if-lit-bind [env node expected-type]
   ;; We can't do sequences this way because they might be function calls
@@ -786,7 +790,6 @@ compilation decisions."
   (when (= (:fn-expr node) coercing-function)
         (swap! env assoc (:symbol node) resulting-type)))
 
-
 (defn infer-collection-type [env node]
   (case (op node)
     :apply
@@ -797,10 +800,18 @@ compilation decisions."
       node)
     :bind
     (do
-      ;; We can't do sequences this way because they might be function calls
-      (add-type-if-lit-bind env node clojure.lang.IPersistentMap)
-      (add-type-if-lit-bind env node clojure.lang.IPersistentVector)
-      (add-type-if-lit-bind env node clojure.lang.IPersistentSet)
+      (let [value (:value node)
+            form (:form value)]
+        (when (= (op value) :eval)
+          (when (and (seq? form)
+                     (not (symbol? (first form)))
+                     (not (seq? (first form))))
+            (swap! env assoc (:symbol node) clojure.lang.ISeq))
+
+          (when (and (not (seq? form))
+                     (not (symbol? form)))
+            (swap! env assoc (:symbol node) (type form))))
+        node)
 
       (add-type-if-coerced-bind env node 'clojure.core/seq clojure.lang.ISeq)
       (add-type-if-coerced-bind env node 'clojure.core/set clojure.lang.IPersistentSet)
@@ -1007,9 +1018,7 @@ compilation decisions."
 
     (:find :match)
     (let [arms (:arms ir)
-          arms (if (= kind :find)
-                 (remove op-fail? arms)
-                 arms)]
+          arms (remove op-fail? arms)]
       (case (count arms)
         0
         fail
@@ -1196,14 +1205,15 @@ compilation decisions."
           result))
       (fail-f))))
 
+
 (defmethod compile* :find
   [ir fail kind]
   (let [search-space (gensym "search_space__")
         result-sym (gensym "result__")
         fail-sym (gensym "fail__")]
     `(loop [~search-space ~(compile* (:value ir) fail kind)]
-       (if (seq ~search-space)
-         (let [~(:symbol ir) (first ~search-space)
+       (if-let [seq-space# (seq ~search-space)]
+         (let [~(:symbol ir) (first seq-space#)
                ~result-sym ~(compile* (:body ir) `FAIL :find)]
            (if (fail? ~result-sym)
              (recur (next ~search-space))

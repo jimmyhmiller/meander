@@ -2175,16 +2175,17 @@
                           :find
                           &env)
             nil)
-          (r.ir/compile
-           (r.ir/op-bind target (r.ir/op-eval expr)
-             (r.ir/op-eval
-               (if (some? final-clause)
-                 `(let [~fail (fn []
-                                ~(r.ir/compile (compile [target] [final-clause]) nil :find &env))]
-                    ~(r.ir/compile (compile [target] matrix) `(~fail) :find &env))
-                 (r.ir/compile (compile [target] matrix) nil :find &env))))
-           nil
-           :find))))))
+          (let [fail (if (some? final-clause)
+                       `(fn []
+                          ~(r.ir/compile (compile [target] [final-clause]) nil :find &env))
+                       `(fn [] nil))]
+
+            (r.ir/compile
+             (r.ir/op-bind target (r.ir/op-eval expr)
+               (compile [target] matrix))
+             `(~fail)
+             :find
+             &env)))))))
 
 
 (s/fdef find
