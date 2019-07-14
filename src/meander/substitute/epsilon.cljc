@@ -441,9 +441,21 @@
                    ~(compile-substitute ?pattern env*)))]
        ~(compile-substitute (:body node) env*))))
 
+
+(defn replace-smart-vars [form]
+  (let [smart-vars (atom -1)]
+    (walk/postwalk
+     (fn [x]
+       (if (= x '..!)
+         (let [var-index (swap! smart-vars inc)]
+           (symbol (str "..!smart_var_" var-index)))
+         x))
+     form)))
+
 (defmacro substitute
   [x]
-  (let [node (r.substitute.syntax/expand-ast
+  (let [x (replace-smart-vars x)
+        node (r.substitute.syntax/expand-ast
               (r.substitute.syntax/parse x &env))
         env (make-env node)
         mvr-ref-bindings (mapcat

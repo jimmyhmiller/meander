@@ -1487,6 +1487,17 @@
    (r.match.syntax/expand-ast (r.match.syntax/parse x env))))
 
 
+(defn replace-smart-vars [form]
+  (let [smart-vars (atom -1)]
+    (walk/postwalk
+     (fn [x]
+       (if (= x '..!)
+         (let [var-index (swap! smart-vars inc)]
+           (symbol (str "..!smart_var_" var-index)))
+         x))
+     form)))
+
+
 ;; TODO: Include useless clause analysis.
 (defn analyze-match-args
   "Analyzes arguments as would be supplied to the match macro e.g.
@@ -1517,7 +1528,7 @@
                        (s/explain-data :meander.match.epsilon.match/args match-args)))
        (let [clauses (map
                       (fn [{:keys [pat rhs]}]
-                        {:pat (r.match.syntax/parse pat env)
+                        {:pat (r.match.syntax/parse (replace-smart-vars pat) env)
                          :rhs rhs})
                       (:clauses data))
              errors (into []
@@ -1610,7 +1621,7 @@
                        (s/explain-data :meander.match.epsilon.match/args match-args)))
        (let [clauses (mapv
                       (fn [{:keys [pat rhs]}]
-                        {:pat (r.match.syntax/parse pat env)
+                        {:pat (r.match.syntax/parse (replace-smart-vars pat) env)
                          :rhs rhs})
                       (:clauses data))
              errors (into [] (keep
@@ -1693,7 +1704,7 @@
                        (s/explain-data :meander.match.epsilon.match/args match-args)))
        (let [clauses (mapv
                       (fn [{:keys [pat rhs]}]
-                        {:pat (r.match.syntax/parse pat env)
+                        {:pat (r.match.syntax/parse (replace-smart-vars pat) env)
                          :rhs rhs})
                       (:clauses data))
              errors (into [] (keep
