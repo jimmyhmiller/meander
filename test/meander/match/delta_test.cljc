@@ -142,6 +142,17 @@
       _
       true)))
 
+
+
+(tc.t/defspec or-captures
+  (tc.prop/for-all [x gen-scalar
+                     y gen-scalar
+                     z gen-scalar]
+    (= [[x y z]]
+       (r.match/match [x y z]
+         (or ~z ~y ~x !xs)
+         !xs))))
+
 #?(:clj
    (t/deftest or-compilation-fails
      (t/is (try
@@ -728,23 +739,25 @@
                 {?key (seqable !xs ...)}
                 !xs)))))
 
+#?(:clj
+   (defn make-array-list [& args]
+     (java.util.ArrayList. args)))
 
-(defn make-array-list [& args]
-  (java.util.ArrayList. args))
+#?(:clj
+   (def ordered-seqable-gen
+     (tc.gen/elements [list vector make-array-list])))
 
-(def ordered-seqable-gen
-  (tc.gen/elements [list vector make-array-list]))
+#?(:clj
+   (tc.t/defspec seqable-unquote-patterns-match
+     (tc.prop/for-all [coll ordered-seqable-gen
+                       x gen-scalar
+                       y gen-scalar]
+       (r.match/match (coll x (coll y x) y)
+         (seqable ~x (seqable ~y ~x) ~y)
+         true
 
-(tc.t/defspec seqable-unquote-patterns-match
-  (tc.prop/for-all [coll ordered-seqable-gen
-                    x gen-scalar
-                    y gen-scalar]
-    (r.match/match (coll x (coll y x) y)
-      (seqable ~x (seqable ~y ~x) ~y)
-      true
-
-      _
-      false)))
+         _
+         false))))
 
 
 (tc.t/defspec seqable-drop-in-head
