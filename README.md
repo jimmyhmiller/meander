@@ -58,7 +58,7 @@ The primary operators for pattern matching and searching are available in `meand
 
 The `match` operator provides traditional pattern matching. It takes an expression to "match" followed by a series of pattern/action clauses.
 
-```clj
+```clojure
 (match x  ;; 1
   pattern ;; 2
   action  ;; 3
@@ -74,7 +74,7 @@ thrown.
 
 Example:
 
-```clj
+```clojure
 (require '[meander.core.epsilon :refer [match]])
 
 (match [1 2 1]
@@ -113,7 +113,7 @@ The `find` operator is similar to `search`, however, returns only the first sear
 
 Example:
 
-```clj
+```clojure
 (require '[meander.core.epsilon :refer [find]])
 
 ;; Find the first pair of an odd number followed by an even number in

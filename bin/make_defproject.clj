@@ -2,9 +2,9 @@
   (:require
    [clojure.java.shell :as shell]
    [clojure.string :as string]
-   [meander.match.delta :as r.match :include-macros true]
-   [meander.strategy.delta :as r]
-   [meander.syntax.delta :as r.syntax :include-macros true]))
+   [meander.epsilon :as r.match :include-macros true]
+   [meander.strategy.epsilon :as r]
+   [meander.syntax.epsilon :as r.syntax :include-macros true]))
 
 
 (defn git-branch-name
@@ -63,9 +63,9 @@
            :paths ?paths
            :dependencies ?deps))
         (fn [project-file]
-          (spit "project.clj" project-file)))
+          (spit "project.clj" (pr-str project-file))))
        deps-edn)
-      (System/exit 0))))
+      )))
 
 (comment
   (-main)
