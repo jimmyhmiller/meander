@@ -1,0 +1,6 @@
+{:cljdoc.doc/tree [["Readme" {:file "README.md"}]
+                   ["Understanding Meander's Pattern Matching Functions" {:file "doc/pattern-matching-functions.md"}]
+                   ["Types of Variables" {:file "doc/types-of-variables.md"}]
+                   ["Applying Meander Strategies" {:file "doc/apply-meander-strategies.md"}]
+                   ["Extending Meander" {:file "doc/extending-meander.md"}]
+                   ["Contributing Guide" {:file "doc/contributing-guide.md"}]]}
