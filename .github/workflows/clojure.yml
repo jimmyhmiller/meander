@@ -1,0 +1,15 @@
+name: Clojure CI
+
+on: [push]
+
+# Probably won't work because clj might not be installed
+# Not sure how this works yet.
+jobs:
+  build:
+ 
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run tests
+      run: clj -A:test && clj -A:cljs-test
