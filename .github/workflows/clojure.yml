@@ -1,13 +1,11 @@
 name: Clojure CI
 
-image: 'docker://openjdk-11-tools-deps'
-
 on: [push]
 
 jobs:
   build:
  
-    runs-on: ubuntu-latest
+    image: 'docker://openjdk-11-tools-deps'
     
     steps:
     - uses: actions/checkout@v1
