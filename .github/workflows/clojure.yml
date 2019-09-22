@@ -25,4 +25,4 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run tests
-      run: clj -A:cljs-test
+      run: clojure -A:cljs-test
