@@ -20,7 +20,7 @@
 
 (t/deftest quote-pattern-test
   (t/is (r.match/match '?x
-          '?x false))
+          '?x true))
 
   (t/is (r.match/match '!x
           '!x true))
