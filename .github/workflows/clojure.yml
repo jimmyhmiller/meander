@@ -3,7 +3,7 @@ name: Clojure CI
 on: [push]
 
 jobs:
-  build:
+  clojure:
 
     runs-on: ubuntu-latest
     
@@ -13,4 +13,16 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Run tests
-      run: clj -A:test && clj -A:cljs-test
+      run: clj -A:test
+
+  clojurescript:
+
+    runs-on: ubuntu-latest
+    
+    container:
+      image: theasp/clojurescript-nodejs:latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run tests
+      run: clj -A:cljs-test
