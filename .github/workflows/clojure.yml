@@ -1,9 +1,9 @@
 name: Clojure CI
 
+image: 'docker://openjdk-11-tools-deps'
+
 on: [push]
 
-# Probably won't work because clj might not be installed
-# Not sure how this works yet.
 jobs:
   build:
  
