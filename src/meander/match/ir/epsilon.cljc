@@ -6,7 +6,6 @@
   (:require
    [clojure.core :as clj]
    [clojure.spec.alpha :as s]
-   [clojure.spec.gen.alpha :as s.gen]
    [clojure.walk :as walk]
    [clojure.zip :as zip]
    [meander.util.epsilon :as r.util]

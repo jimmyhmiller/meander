@@ -1,12 +1,7 @@
 (ns ^:no-doc meander.syntax.specs.epsilon
-  #?(:clj
      (:require [clojure.spec.alpha :as s]
                [clojure.spec.gen.alpha :as s.gen]
-               [meander.util.epsilon :as m.util])
-     :cljs
-     (:require [cljs.spec.alpha :as s]
-               [cljs.spec.gen.alpha :as s.gen]
-               [meander.util.epsilon :as m.util])))
+               [meander.util.epsilon :as m.util]))
 
 ;; Every AST node has, at least, the key `:tag`, the value of which is
 ;; a `keyword?`.

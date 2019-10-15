@@ -5,12 +5,11 @@
             [clojure.test.check.clojure-test :as tc.t :include-macros true]
             [clojure.test.check.generators :as tc.gen :include-macros true]
             [clojure.test.check.properties :as tc.prop :include-macros true]
-            [meander.epsilon :as r :include-macros true]
-            [meander.syntax.specs.epsilon :as m.syntax.specs]))
+            [meander.epsilon :as r :include-macros true]))
 
 #?(:clj (set! *warn-on-reflection* true))
 
-(st/instrument)
+
 
 ;; ---------------------------------------------------------------------
 ;; Helpers

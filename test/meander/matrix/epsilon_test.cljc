@@ -8,6 +8,7 @@
             [meander.matrix.epsilon :as r.matrix]))
 
 
+#?(:clj
 (t/deftest any-row?-test
   (t/testing "should not be an any-row?"
     #_
@@ -35,3 +36,4 @@
           action-form :a1
           row (r.matrix/make-row nodes action-form)]
       (t/is (= true (r.matrix/any-row? row))))))
+)

@@ -10,7 +10,6 @@
      (:require [cljs.spec.alpha :as s :include-macros true]
                [clojure.set :as set]
                [clojure.string :as string]
-               [meander.syntax.specs.epsilon]
                [meander.util.epsilon :as r.util]
                [goog.object]))
   #?(:cljs
@@ -1961,6 +1960,7 @@
   {:arglists '([name doc-string? attr-map? [params*] prepost-map? body] [name doc-string? attr-map? ([params*] prepost-map? body) + attr-map?])
    :style/indent :defn}
   [& defn-args]
+  #?(:clj
   (let [conformed-defn-args (s/conform :meander.syntax.specs.epsilon/defsyntax-args defn-args)
         defn-args (next defn-args)
         docstring (:docstring conformed-defn-args)
@@ -2007,7 +2007,6 @@
     ;; Clojure. This is because the match, search, and find macros (in
     ;; meander.match.epsilon) are expanded in Clojure which, in turn,
     ;; rely on these methods.
-    #?(:clj
        (when-some [cljs-ns (:ns &env)]
          ;; Visit the namespace.
          (in-ns (:name cljs-ns))
@@ -2021,7 +2020,7 @@
                  (if (= alias ns-name)
                    (require ns-name)
                    (require [ns-name :as alias])))
-               (catch Exception _))))))
+               (catch Exception _)))))
     `(do ~expander-definition-body-form
-         (var ~fn-name))))
+         (var ~fn-name)))))
 
